@@ -1,0 +1,23 @@
+# Mayhem target: gitignore_parser (.gitignore matcher) — Atheris/libFuzzer harness.
+# The cmd binary is the compiled ELF launcher that drives mayhem/fuzz_gitignore.py; Atheris
+# instruments the gitignore_parser module so the run records coverage (edges).
+# project/target names preserved from the fork's original Mayhem target (parity).
+project: savantenvs/gitignore-parser
+target: gitignore-parse
+
+cmds:
+  - cmd: /mayhem/gitignore_fuzzer
+    libfuzzer: true
+
+# Seed corpus of representative .gitignore files (file:// URIs, per the Mayhemfile schema).
+# The owner/project half of the accumulation URI is PINNED to the Mayhem project SLUG
+# (savantenvs/gitignore-parser), as on savantenvs/sdl_sound, daw_json_link and dng_sdk.
+# $MAYHEM_PROJECT interpolates the --project of whoever creates the run. By default that is the
+# GitHub repo name (gitignore_parser, with an underscore), while Mayhem stores the project as
+# gitignore-parser, and the run-creation testsuite ACL check then aborts ("You do not have access
+# to use a test suite from the project gitignore_parser"). .github/workflows/mayhem.yml passes the
+# slug too; the pin keeps the URI right for any other run creator. $MAYHEM_TARGET stays literal so
+# each target keys its own tar.
+testsuite:
+  - https://$MAYHEM_DOMAIN/savantenvs/gitignore-parser/$MAYHEM_TARGET/testsuite.tar
+  - file://mayhem/gitignore-parse/testsuite
